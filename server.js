@@ -1,4 +1,4 @@
-onst express = require("express");
+const express = require("express");
 const { default: makeWASocket, useMultiFileAuthState, fetchLatestBaileysVersion } = require("@whiskeysockets/baileys");
 const fs = require("fs");
 const app = express();
