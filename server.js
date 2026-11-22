@@ -7,6 +7,11 @@ app.use((req, res, next) => { res.header("Access-Control-Allow-Origin", "*"); re
 const users = {};
 const BOT_FOOTER = "\n\n━━━━━━━━━━━━\n🤖 Powered by Michat Bot\n🔗 Join Michat: https://michat.lovable.app\nPost every day inside Michat or Bot go stop in 3 days!";
 app.get("/", (req, res) => res.json({ ok: true, message: "Michat Bot Server is running!", users: Object.keys(users).length }));
+
+// OPEN PORT FIRST - THIS FIXES RENDER TIMEOUT
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, "0.0.0.0", () => console.log("Michat Bot Server running on " + PORT));
+
 app.post("/api/activate-bot", (req, res) => {
   const { phone } = req.body;
   if (users[phone]) { users[phone].lastPost = Date.now(); users[phone].active = true; }
@@ -65,5 +70,3 @@ setInterval(() => {
     }
   }
 }, 60*60*1000);
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Michat Bot Server running on " + PORT));
