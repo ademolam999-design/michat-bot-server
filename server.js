@@ -12,7 +12,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// 1. KEEP SOCKET ALIVE - Map, not plain object
 const users = new Map();
 const BOT_FOOTER = "\n\n━━━━━━━━━━━━\n🤖 Powered by Michat Bot\n🔗 Join Michat: https://michat.lovable.app";
 
@@ -49,21 +48,24 @@ app.post("/api/get-code", async (req, res) => {
     if (existing?.connected) return res.json({ message: "ALREADY-LINKED" });
     if (existing) { try { existing.sock.end(); } catch(e){} users.delete(cleanPhone); }
 
-    // 2. CLEAR SESSION BEFORE NEW PAIRING
     const oldFolder = path.join(__dirname, "sessions", cleanPhone);
     if (fs.existsSync(oldFolder)) fs.rmSync(oldFolder, { recursive: true, force: true });
     if (!fs.existsSync("sessions")) fs.mkdirSync("sessions");
 
     const { state, saveCreds } = await useMultiFileAuthState(`sessions/${cleanPhone}`);
-
-    // 3. LATEST VERSION + REAL BROWSER - THIS FIXES INVALID CODE
     const { version } = await fetchLatestBaileysVersion();
     const sock = makeWASocket({
       version,
       auth: state,
       printQRInTerminal: false,
       syncFullHistory: false,
-      browser: ["Ubuntu", "Chrome", "20.0.04"]
+      browser: ["Ubuntu", "Chrome", "20.0.04"],
+      keepAliveIntervalMs: 30000,
+      connectTimeoutMs: 60000,
+      defaultQueryTimeoutMs: 60000,
+      retryRequestDelayMs: 250,
+      emitOwnEvents: true,
+      getMessage: async () => { return { conversation: "" }; }
     });
 
     sock.ev.on("creds.update", saveCreds);
@@ -75,10 +77,13 @@ app.post("/api/get-code", async (req, res) => {
       if (u.connection === "open") user.connected = true;
       if (u.connection === "close") {
         user.connected = false;
-        if (u.lastDisconnect?.error?.output?.statusCode === DisconnectReason.loggedOut) {
+        const code = u.lastDisconnect?.error?.output?.statusCode;
+        if (code === DisconnectReason.loggedOut) {
           users.delete(cleanPhone);
           const f = path.join(__dirname, "sessions", cleanPhone);
           if (fs.existsSync(f)) fs.rmSync(f, { recursive: true, force: true });
+        } else {
+          console.log("Socket closed for " + cleanPhone + " code: " + code + " - will retry with new code");
         }
       }
     });
