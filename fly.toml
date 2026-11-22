@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for michat-bot-server on 2026-11-22T17:01:07Z
+# fly.toml app configuration file generated for michat-bot-server-lrpyua on 2026-11-22T17:45:09Z
 #
 # See https://docs.fly.io/reference/configuration for information about how to use this file.
 #
 
-app = 'michat-bot-server'
+app = 'michat-bot-server-lrpyua'
 primary_region = 'ams'
 
 [build]
