@@ -1,21 +1,15 @@
-# fly.toml app configuration file generated for michat-bot-server-lrpyua on 2026-11-22T17:45:09Z
-#
-# See https://docs.fly.io/reference/configuration for information about how to use this file.
-#
+app = "michat-bot-server-lrpyua"
+primary_region = "lhr"
 
-app = 'michat-bot-server-lrpyua'
-primary_region = 'ams'
-
-[build]
 [http_service]
-  internal_port = 8080
+  internal_port = 3000
   force_https = true
-  auto_stop_machines = 'stop'
+  auto_stop_machines = false
   auto_start_machines = true
-  min_machines_running = 0
-  processes = ['app']
+  min_machines_running = 1
+  processes = ["app"]
 
 [[vm]]
-  memory = '256mb'
-  cpu_kind = 'shared'
+  memory = "1gb"
+  cpu_kind = "shared"
   cpus = 1
